@@ -6,14 +6,16 @@ __pycache__/
 venv/
 env/
 
-# 录音和截图：含本机环境信息（桌面、设备名），绝不入库
+# 褰曢煶鍜屾埅鍥撅細鍚湰鏈虹幆澧冧俊鎭紙妗岄潰銆佽澶囧悕锛夛紝缁濅笉鍏ュ簱
 samples/
 shots/
 *.wav
 
-# 编辑器与系统
+# 缂栬緫鍣ㄤ笌绯荤粺
 .vscode/
 .idea/
 *.swp
 Thumbs.db
 desktop.ini
+
+dist/
