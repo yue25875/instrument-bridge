@@ -165,6 +165,17 @@ def parse_args() -> argparse.Namespace:
     return p.parse_args()
 
 
+def app_root() -> str:
+    """资源根目录。
+
+    源码运行时就是脚本所在目录；被 PyInstaller 打包成 exe 后，
+    --add-data 放进去的资源会被解压到 sys._MEIPASS。
+    """
+    if getattr(sys, "frozen", False):
+        return getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(sys.executable)))
+    return os.path.dirname(os.path.abspath(__file__))
+
+
 def main() -> int:
     args = parse_args()
 
@@ -174,7 +185,7 @@ def main() -> int:
         args.block = 256
         if args.min_freq < 110.0:
             args.min_freq = 110.0
-    root = os.path.dirname(os.path.abspath(__file__))
+    root = app_root()
     profile_path = args.profile or os.path.join(root, "profiles", "games", "nte-piano.json")
     profile = load_profile(profile_path)
     keymap = {int(k): v for k, v in profile["keys"].items()}
