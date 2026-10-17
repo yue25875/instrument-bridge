@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# 录音和截图：含本机环境信息（桌面、设备名），绝不入库
+samples/
+shots/
+*.wav
+
+# 编辑器与系统
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+desktop.ini
