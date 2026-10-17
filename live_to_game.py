@@ -34,21 +34,10 @@ for _s in (sys.stdout, sys.stderr):
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from src.notes import freq_to_midi, midi_to_name  # noqa: E402
 from src.pitch import correct_octave, yin  # noqa: E402
+from src.keys import send_action  # noqa: E402
 
-WM_KEYDOWN = 0x0100
-WM_KEYUP = 0x0101
 WM_ACTIVATE = 0x0006
 WA_CLICKACTIVE = 2
-
-# 虚拟键码
-KEY_VK = {
-    "a": 0x41, "b": 0x42, "c": 0x43, "d": 0x44, "e": 0x45, "f": 0x46, "g": 0x47,
-    "h": 0x48, "i": 0x49, "j": 0x4A, "k": 0x4B, "l": 0x4C, "m": 0x4D, "n": 0x4E,
-    "o": 0x4F, "p": 0x50, "q": 0x51, "r": 0x52, "s": 0x53, "t": 0x54, "u": 0x55,
-    "v": 0x56, "w": 0x57, "x": 0x58, "y": 0x59, "z": 0x5A,
-    "shift": 0xA0,  # 左 Shift
-    "ctrl": 0xA2,   # 左 Ctrl
-}
 
 
 class RingBuffer:
@@ -121,37 +110,10 @@ def pick_default_device() -> int | None:
 
 
 def make_sender(hwnd: int, hold: float):
-    """返回一个 send(midi) 函数，把 MIDI 音符号发成游戏按键。"""
-    user32 = ctypes.windll.user32
-
-    def vk_params(vk: int):
-        scan = user32.MapVirtualKeyW(vk, 0)
-        down = 1 | (scan << 16)
-        up = down | 0xC0000000
-        return down, up
-
-    def tap(vk: int) -> None:
-        down, up = vk_params(vk)
-        user32.PostMessageW(hwnd, WM_KEYDOWN, vk, down)
-        time.sleep(hold)
-        user32.PostMessageW(hwnd, WM_KEYUP, vk, up)
+    """返回一个 send(action) 函数，把 'z' / 'shift+z' 这类动作发成按键。"""
 
     def send(action: str) -> None:
-        """action 形如 'z' / 'shift+z' / 'ctrl+c'。"""
-        parts = action.split("+")
-        modifier = parts[0] if len(parts) > 1 else None
-        key = parts[-1]
-
-        if modifier:
-            mvk = KEY_VK[modifier]
-            mdown, mup = vk_params(mvk)
-            user32.PostMessageW(hwnd, WM_KEYDOWN, mvk, mdown)
-            time.sleep(0.002)
-            tap(KEY_VK[key])
-            time.sleep(0.001)
-            user32.PostMessageW(hwnd, WM_KEYUP, mvk, mup)
-        else:
-            tap(KEY_VK[key])
+        send_action(hwnd, action, hold)
 
     return send
 
