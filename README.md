@@ -57,7 +57,7 @@
 4. **手离开鼠标键盘，开始弹**
 5. 按 `Ctrl+C` 退出
 
-exe 从 Releases 下载，或自己打包（见文末「打包成 exe」）。
+exe 就在仓库的 [`release/instrument-bridge.exe`](release/instrument-bridge.exe)，约 21 MB，直接下载双击即可。也可以自己打包（见文末「打包成 exe」）。
 
 ### 方式二：源码 + 一键安装
 
