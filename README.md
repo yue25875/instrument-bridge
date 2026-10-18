@@ -59,6 +59,13 @@
 
 exe 就在仓库的 [`release/instrument-bridge.exe`](release/instrument-bridge.exe)，约 21 MB，直接下载双击即可。也可以自己打包（见文末「打包成 exe」）。
 
+**exe 也支持换游戏。** 两种进入建表向导的方式：
+
+- 双击 `release/建表向导.bat`
+- 或者命令行：`instrument-bridge.exe --wizard`
+
+生成的键位表会存在 exe 同目录的 `profiles/games/` 下，下次运行时用 `--profile` 指定即可。
+
 ### 方式二：源码 + 一键安装
 
 需要电脑上装了 **Python 3.10 或更新**（[下载](https://www.python.org/downloads/)，安装时**务必勾选 "Add Python to PATH"**）。
@@ -229,7 +236,7 @@ YIN 有个固有弱点：周期为 T 的信号，周期也是 2T。所以它偶�
 | **`弹琴.bat`** | 真正开始弹 | 主程序：麦克风 → 游戏按键。启动后要点一下游戏窗口 |
 | **`麦克风测试.bat`** | 怀疑麦克风没收到声音 | 实时音量条。说话/弹琴看条子动不动，同时读出底噪和弹奏电平 |
 | **`校准.bat`** | 怀疑游戏里音名不对 | 自动弹三个八度的 C 大调音阶，你听是不是 `do re mi fa sol la si` |
-| **`建表向导.bat`** | 想换一个游戏 | 交互式建键位表，生成的 JSON 存进 `profiles/games/` |
+| **`建表向导.bat`** | 想换一个游戏 | 交互式建键位表，生成的 JSON 存进 `profiles/games/`。**exe 版双击 `release/建表向导.bat`** |
 | **`列设备.bat`** | 自动选的麦克风不对 | 列出所有音频输入设备的编号和名字 |
 | **`录音.bat`** | 要让别人帮你分析问题 | 录 12 秒 WAV 到 `samples/`，可用 `analyze_wav.py` 离线看 |
 

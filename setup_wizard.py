@@ -212,7 +212,13 @@ def main() -> int:
         "keys": {str(k): v for k, v in sorted(mapping.items())},
     }
 
-    root = os.path.dirname(os.path.abspath(__file__))
+    # 生成的文件要放在用户找得到的地方：
+    #   exe 模式下 = exe 所在目录（_MEIPASS 是临时解压目录，程序退出就没了）
+    #   源码模式 = 脚本所在目录
+    if getattr(sys, "frozen", False):
+        root = os.path.dirname(os.path.abspath(sys.executable))
+    else:
+        root = os.path.dirname(os.path.abspath(__file__))
     out_dir = os.path.join(root, "profiles", "games")
     os.makedirs(out_dir, exist_ok=True)
     out_path = os.path.join(out_dir, f"{safe}.json")

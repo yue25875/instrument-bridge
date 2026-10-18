@@ -162,11 +162,16 @@ def parse_args() -> argparse.Namespace:
         "+12=吉他C3进低音区，+24=吉他C3进中音区，+36=吉他C3进高音区",
     )
     p.add_argument("--profile", default=None, help="游戏键位表 JSON 路径")
+    p.add_argument(
+        "--wizard",
+        action="store_true",
+        help="进入建表向导：为自己的游戏生成键位表（不用再开源码版）",
+    )
     return p.parse_args()
 
 
 def app_root() -> str:
-    """资源根目录。
+    """只读资源根目录。
 
     源码运行时就是脚本所在目录；被 PyInstaller 打包成 exe 后，
     --add-data 放进去的资源会被解压到 sys._MEIPASS。
@@ -176,8 +181,43 @@ def app_root() -> str:
     return os.path.dirname(os.path.abspath(__file__))
 
 
+def user_root() -> str:
+    """用户可写目录，用来放自己生成的键位表。
+
+    exe 模式下就是 exe 所在目录（_MEIPASS 是临时解压目录，不能往里写）；
+    源码模式下就是脚本所在目录。
+    """
+    if getattr(sys, "frozen", False):
+        return os.path.dirname(os.path.abspath(sys.executable))
+    return os.path.dirname(os.path.abspath(__file__))
+
+
+def resolve_profile(explicit: str | None) -> str:
+    """决定用哪份键位表。
+
+    优先级：
+      1. --profile 指定的路径
+      2. 用户目录下同名的（向导生成的）
+      3. exe/脚本自带的内置表
+    """
+    name = "nte-piano.json"
+    if explicit:
+        return explicit
+    for base in (user_root(), app_root()):
+        candidate = os.path.join(base, "profiles", "games", name)
+        if os.path.exists(candidate):
+            return candidate
+    return os.path.join(app_root(), "profiles", "games", name)
+
+
 def main() -> int:
     args = parse_args()
+
+    # --wizard：进入建表向导模式（同一个 exe，不同入口）
+    if args.wizard:
+        from setup_wizard import main as wizard_main
+
+        return wizard_main()
 
     # 低延迟模式：窗口减半、块变小、音域下限定到 110Hz（C3 以上够用）
     if args.low_latency:
@@ -185,8 +225,7 @@ def main() -> int:
         args.block = 256
         if args.min_freq < 110.0:
             args.min_freq = 110.0
-    root = app_root()
-    profile_path = args.profile or os.path.join(root, "profiles", "games", "nte-piano.json")
+    profile_path = resolve_profile(args.profile)
     profile = load_profile(profile_path)
     keymap = {int(k): v for k, v in profile["keys"].items()}
     lo, hi = profile["midi_range"]
