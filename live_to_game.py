@@ -200,10 +200,16 @@ def main() -> int:
     user32 = ctypes.windll.user32
 
     def focus_game() -> None:
-        """把游戏切到前台。异环只有在自己是前台窗口时才收键盘输入。"""
+        """把游戏切到前台。异环只有在自己是前台窗口时才收键盘输入。
+
+        只在窗口最小化时才 ShowWindow 恢复；正常显示（含全屏）的窗口
+        不动它的窗口状态，避免影响全屏/窗口化设置。
+        """
         if not hwnd:
             return
-        user32.ShowWindow(hwnd, 9)          # SW_RESTORE
+        if user32.IsIconic(hwnd):
+            user32.ShowWindow(hwnd, 9)      # 9 = SW_RESTORE
+            time.sleep(0.2)
         user32.SetForegroundWindow(hwnd)
         user32.SendMessageW(hwnd, WM_ACTIVATE, WA_CLICKACTIVE, 0)
 

@@ -78,9 +78,14 @@ def focus_window(hwnd: int) -> None:
     """把窗口切到前台并激活。
 
     游戏通常在不是前台窗口时不收键盘输入，所以发键前先叫一下。
+
+    注意：只有窗口真的最小化了才调 ShowWindow(SW_RESTORE)。
+    对正常显示（含全屏）的窗口不做任何窗口状态操作，
+    避免影响游戏的全屏/窗口化状态。
     """
-    user32.ShowWindow(hwnd, 9)          # SW_RESTORE
-    time.sleep(0.2)
+    if user32.IsIconic(hwnd):
+        user32.ShowWindow(hwnd, 9)      # 9 = SW_RESTORE
+        time.sleep(0.2)
     user32.SetForegroundWindow(hwnd)
     time.sleep(0.2)
     user32.SendMessageW(hwnd, WM_ACTIVATE, WA_CLICKACTIVE, 0)
