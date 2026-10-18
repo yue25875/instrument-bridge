@@ -207,7 +207,47 @@ YIN 有个固有弱点：周期为 T 的信号，周期也是 2T。所以它偶�
 
 ---
 
-## 文件说明
+## 工具速查
+
+### 双击就能用的脚本
+
+| 文件 | 什么时候用 | 做了什么 |
+|---|---|---|
+| **`一键安装.bat`** | 第一次用源码版，**只需点一次** | 建虚拟环境、装 numpy 和 sounddevice。装完再也不用点 |
+| **`弹琴.bat`** | 真正开始弹 | 主程序：麦克风 → 游戏按键。启动后要点一下游戏窗口 |
+| **`麦克风测试.bat`** | 怀疑麦克风没收到声音 | 实时音量条。说话/弹琴看条子动不动，同时读出底噪和弹奏电平 |
+| **`校准.bat`** | 怀疑游戏里音名不对 | 自动弹三个八度的 C 大调音阶，你听是不是 `do re mi fa sol la si` |
+| **`建表向导.bat`** | 想换一个游戏 | 交互式建键位表，生成的 JSON 存进 `profiles/games/` |
+| **`列设备.bat`** | 自动选的麦克风不对 | 列出所有音频输入设备的编号和名字 |
+| **`录音.bat`** | 要让别人帮你分析问题 | 录 12 秒 WAV 到 `samples/`，可用 `analyze_wav.py` 离线看 |
+
+> 除 `麦克风测试.bat` 外，其他脚本都要求游戏已打开乐器界面。
+
+### 命令行工具
+
+需要 `.venv` 已装好（跑过 `一键安装.bat`）。
+
+```bash
+# 只检测不发送，屏幕上显示音符（调算法、验证检测准不准）
+.venv\Scripts\python.exe live_pitch.py
+
+# 逐帧诊断：电平、门限、检测结果，看卡在哪一环
+.venv\Scripts\python.exe diag_live.py --seconds 30
+
+# 测房间底噪，用来定 --gate-db 的值
+.venv\Scripts\python.exe measure_noise.py --seconds 6
+
+# 分析录好的 WAV：对比 YIN 结果和 FFT 频谱，排查八度错误
+.venv\Scripts\python.exe analyze_wav.py samples\rec_xxx.wav
+```
+
+### 换游戏用 `--profile`
+
+```bash
+.venv\Scripts\python.exe live_to_game.py --profile profiles/games/你的游戏.json
+```
+
+### 代码结构
 
 ```
 src/pitch.py            YIN 音高检测 + 八度修正
@@ -215,21 +255,11 @@ src/notes.py            频率 / MIDI / 音名换算
 src/keys.py             Windows 按键注入（虚拟键码 + PostMessage）
 
 live_to_game.py         主程序：麦克风 → 游戏
-live_pitch.py           只检测，不接游戏（调算法用）
-setup_wizard.py         建表向导：给任意游戏生成键位表
-
+live_pitch.py           只检测不发送
+setup_wizard.py         建表向导
 profiles/games/         游戏键位表
-
-calibrate.py            校准：弹三个八度音阶，验证键位映射
-mic_meter.py            实时音量表
-list_devices.py         列出音频输入设备
-diag_live.py            逐帧诊断（电平/检测/门限）
-analyze_wav.py          分析录音：对比 YIN 结果和 FFT 频谱
-measure_noise.py        测房间底噪
-record_sample.py        录 WAV
-
 examples/               裸按键注入的最小示例
-tests/                  算法自测（不依赖麦克风）
+tests/                  算法自测（不依赖麦克风和游戏）
 ```
 
 ---
@@ -256,6 +286,13 @@ tests/                  算法自测（不依赖麦克风）
 
 **7. Windows 控制台是 GBK**
 输出含 `¢` 等字符会直接崩，需要 `errors="replace"` 兜底。
+
+**8. .bat 文件必须是 CRLF 换行**
+写成 LF 的话，cmd 会逐字节错读，双击后**闪一下就退出**，还可能在命令行里乱执行东西。
+更坑的是：用某些编辑器/脚本生成 `.bat` 时默认给 LF，在 Linux/macOS 上完全正常的同一份内容，到 Windows 就炸。
+
+**9. 用 ASCII 编码写 .bat，中文会变成问号**
+`[System.Text.Encoding]::ASCII` 只能存 0-127。要显示中文得用 UTF-8 + `chcp 65001`，但 cmd 解析 UTF-8 批处理本身有坑——所以最稳的做法是**批处理内容全用英文**，中文只出现在文件名里。
 
 ---
 
