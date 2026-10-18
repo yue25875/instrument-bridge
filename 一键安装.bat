@@ -23,7 +23,7 @@ if errorlevel 1 (
 for /f "tokens=2" %%v in ('python --version 2^>^&1') do echo Found Python %%v
 
 echo.
-echo [1/2] Creating virtual environment (.venv) ...
+echo [1/2] Creating virtual environment ...
 python -m venv .venv
 if errorlevel 1 (
     echo [ERROR] venv creation failed.
@@ -32,12 +32,12 @@ if errorlevel 1 (
 )
 
 echo.
-echo [2/2] Installing dependencies (numpy, sounddevice) ...
+echo [2/2] Installing dependencies ...
 ".venv\Scripts\python.exe" -m pip install --quiet --upgrade pip
 ".venv\Scripts\python.exe" -m pip install --quiet -r requirements.txt
 if errorlevel 1 (
     echo.
-    echo [ERROR] pip install failed. If GitHub/PyPI is slow, try a mirror:
+    echo [ERROR] pip install failed. If PyPI is slow, try a mirror:
     echo.
     echo   .venv\Scripts\python.exe -m pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
     echo.
@@ -49,8 +49,8 @@ echo.
 echo ==========================================
 echo   Done.
 echo.
-echo   Next: double-click  弹琴.bat
-echo     (or 麦克风测试.bat to check your mic first)
+echo   Next: double-click the piano launcher .bat
+echo         (or the mic test .bat to check your microphone first)
 echo ==========================================
 echo.
 pause
