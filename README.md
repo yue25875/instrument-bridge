@@ -69,6 +69,18 @@ exe 就在仓库的 [`release/instrument-bridge.exe`](release/instrument-bridge.
 
 > 如果 pip 下载卡住，用它提示的清华镜像命令重跑一次。
 
+**如果安装报 `The system cannot execute the specified program`：**
+
+这说明你的 `python` 是**微软商店的存根**——`where python` 能找到它，但执行任何脚本都会失败。从 Microsoft Store 装过 Python 或者从来没装过的机器经常这样。
+
+处理：
+
+1. 打开「设置 → 应用」，卸载 Microsoft Store 版本的 Python（如果有）
+2. 从 https://www.python.org/downloads/ 装官方版，**勾选 "Add Python to PATH"**
+3. **关掉当前所有命令行窗口**，重新打开一个再运行 `一键安装.bat`
+
+> 安装脚本会依次尝试 `python`、`py -3`、`python3`，并且**真的执行一次版本检查**来验证——不会只看"命令存不存在"。三个都不行才会报错，并告诉你具体原因。
+
 ### 两种方式的区别
 
 | | 独立 exe | 源码 |
